@@ -68,8 +68,62 @@
         }
         sendEvent(this.options,params.action,params.value,params.actionParams,params.stage);
     }
+
     //綁定動作
-        
+    GAETracker.prototype.bindEvent = function(){
+        //移除已綁定的動作
+        var GAETrackerClass = document.querySelectorAll(".GAETracker");
+        on("click.GT",GAETrackerClass,domEvent,"area");
+    }
+
+    //綁定互動動作
+    function on(_event,_obj,_fun,_option){
+        if(_event.match(".")){
+            _event = _event.split(".");
+            _name = _event[1];
+            _event = _event[0];
+        }else{
+            _name = 'GAETracking';
+        }
+        attr = _event+_name;
+        for(var i = 0; i < _obj.length; i++){
+            if(typeof _obj[i][attr] != "undefined"){
+                if(_obj[i][attr] == true){
+                    continue;
+                }else{
+                    _obj[i][attr] = true;
+                    continue;
+                }
+            }
+            _obj[i][attr] = true;
+            _obj[i].addEventListener(_event,function(e){
+                if(typeof e.target[attr]!="undefined"){
+                    if(e.target[attr]){
+                        _fun(e.target,_option);
+                    }
+                }
+            });
+        }
+    }
+    //暫時停止動作
+    function off(_event,_obj){
+        if(_event.match(".")){
+            _event = _event.split(".");
+            _name = _event[1];
+            _event = _event[0];
+        }else{
+            _name = 'GAETracking';
+        }
+        var attr = _event + _name;
+        for(var i = 0; i < _obj.length; i++){
+            _obj[i][attr] = false;
+        }
+    }
+
+    //dom event
+    function domEvent(_obj,_option){
+        console.log("event"+_option);
+    }
 
     //儲存GA紀錄
     //action : 執行動作, value : 動作內容, actionParams : 動作補充參數, stage : 動作內容補充參數
@@ -103,3 +157,4 @@ if(typeof window.gtOptions=="undefined"){
     window.gtOptions = {};
 }
 var GAETracker = new GAETracker(window.gtOptions);
+GAETracker.bindEvent();
